@@ -1,0 +1,22 @@
+{
+  "name": "eyob-portfolio-cms",
+  "version": "1.0.0",
+  "description": "Modern Full-Stack Developer Portfolio & CMS for Eyob Wendmamagegn",
+  "scripts": {
+    "dev:backend": "cd backend && php artisan serve",
+    "dev:frontend": "cd frontend && npm.cmd run dev",
+    "build:frontend": "cd frontend && npm.cmd run build",
+    "migrate:seed": "cd backend && php artisan migrate:fresh --seed",
+    "test:backend": "cd backend && php artisan test"
+  },
+  "keywords": [
+    "laravel",
+    "vue3",
+    "postgresql",
+    "portfolio",
+    "cms",
+    "tailwind"
+  ],
+  "author": "Eyob Wendmamagegn",
+  "license": "MIT"
+}

@@ -1,0 +1,226 @@
+<template>
+  <div class="space-y-8 max-w-4xl mx-auto">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div>
+        <h1 class="text-2xl font-extrabold text-white light:text-slate-900 tracking-tight">Site Settings & CV File</h1>
+        <p class="text-xs text-slate-400 light:text-slate-600 mt-1">
+          Manage brand configuration, downloadable CV document, and system preferences.
+        </p>
+      </div>
+
+      <button 
+        @click="saveSettings" 
+        :disabled="saving"
+        class="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-semibold bg-blue-600 hover:bg-blue-500 text-white shadow-md transition-all self-start sm:self-auto disabled:opacity-50"
+      >
+        <Loader2 v-if="saving" class="w-3.5 h-3.5 animate-spin" />
+        <Save v-else class="w-3.5 h-3.5" />
+        <span>Save Settings</span>
+      </button>
+    </div>
+
+    <!-- Alert / Toast Banner -->
+    <div 
+      v-if="feedback" 
+      class="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs flex items-center justify-between"
+    >
+      <span>{{ feedback }}</span>
+      <button @click="feedback = ''" class="text-emerald-400 hover:text-white"><X class="w-4 h-4" /></button>
+    </div>
+
+    <!-- CV / Resume Document Management -->
+    <div class="p-6 sm:p-8 rounded-3xl glass-panel border border-slate-800 light:border-slate-200 shadow-xl space-y-6">
+      <h2 class="text-base font-bold text-white light:text-slate-900 flex items-center gap-2 border-b border-slate-800 pb-3">
+        <FileText class="w-5 h-5 text-blue-400" />
+        <span>Downloadable Curriculum Vitae (CV / Resume)</span>
+      </h2>
+
+      <div class="p-5 rounded-2xl bg-slate-950 border border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="space-y-1 text-center sm:text-left">
+          <p class="text-xs font-bold text-white">Current CV File Status</p>
+          <div class="flex items-center gap-2 justify-center sm:justify-start">
+            <span 
+              :class="[
+                'w-2 h-2 rounded-full',
+                settings.cv_file_path ? 'bg-emerald-400' : 'bg-amber-400'
+              ]"
+            ></span>
+            <span class="text-xs font-mono text-slate-300">
+              {{ settings.cv_file_path ? 'CV file uploaded and ready for public download' : 'No custom CV uploaded yet (using API fallback)' }}
+            </span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <a 
+            v-if="settings.cv_file_url" 
+            :href="settings.cv_file_url" 
+            target="_blank" 
+            class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 text-slate-200 hover:bg-slate-700 flex items-center gap-1.5"
+          >
+            <Download class="w-3.5 h-3.5" />
+            <span>Test Download</span>
+          </a>
+
+          <button 
+            v-if="settings.cv_file_path" 
+            @click="removeCv"
+            class="p-2 rounded-xl text-rose-400 hover:bg-rose-500/10"
+            title="Remove CV document"
+          >
+            <Trash2 class="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+
+      <!-- CV Upload Control -->
+      <div>
+        <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Upload New CV File (PDF / DOC)</label>
+        <div class="flex items-center gap-3">
+          <input 
+            type="file" 
+            accept=".pdf,.doc,.docx"
+            @change="handleCvFileSelect"
+            class="text-xs text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-blue-600 file:text-white file:text-xs file:font-semibold hover:file:bg-blue-500"
+          />
+          <button 
+            v-if="cvFile"
+            @click="uploadCv"
+            :disabled="cvUploading"
+            class="px-5 py-2 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white flex items-center gap-1.5"
+          >
+            <Loader2 v-if="cvUploading" class="w-3.5 h-3.5 animate-spin" />
+            <span>Confirm Upload</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Branding & Meta Settings -->
+    <div class="p-6 sm:p-8 rounded-3xl glass-panel border border-slate-800 light:border-slate-200 shadow-xl space-y-6">
+      <h2 class="text-base font-bold text-white light:text-slate-900 flex items-center gap-2 border-b border-slate-800 pb-3">
+        <Sliders class="w-5 h-5 text-indigo-400" />
+        <span>General Site Configuration</span>
+      </h2>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div>
+          <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Website Title</label>
+          <input 
+            v-model="settings.site_title" 
+            type="text" 
+            class="w-full px-3.5 py-2.5 rounded-xl text-xs bg-slate-950 border border-slate-800 text-white focus:outline-none"
+          />
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Tagline</label>
+          <input 
+            v-model="settings.site_tagline" 
+            type="text" 
+            class="w-full px-3.5 py-2.5 rounded-xl text-xs bg-slate-950 border border-slate-800 text-white focus:outline-none"
+          />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div>
+          <label class="block text-xs font-bold uppercase text-slate-400 mb-1">Default Color Theme</label>
+          <select 
+            v-model="settings.default_theme" 
+            class="w-full px-3.5 py-2.5 rounded-xl text-xs bg-slate-950 border border-slate-800 text-white focus:outline-none"
+          >
+            <option value="dark">Dark Theme (Deep Navy)</option>
+            <option value="light">Light Theme (Crisp Slate)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold uppercase text-slate-400 mb-1">SEO Keywords</label>
+          <input 
+            v-model="settings.seo_keywords" 
+            type="text" 
+            class="w-full px-3.5 py-2.5 rounded-xl text-xs bg-slate-950 border border-slate-800 text-white focus:outline-none"
+          />
+        </div>
+      </div>
+    </div>
+
+  </div>
+</template>
+
+<script setup>
+import { ref, onMounted } from 'vue'
+import api from '@/services/api'
+import { FileText, Download, Trash2, Sliders, Save, Loader2, X } from 'lucide-vue-next'
+
+const settings = ref({})
+const feedback = ref('')
+const saving = ref(false)
+const cvFile = ref(null)
+const cvUploading = ref(false)
+
+async function loadSettings() {
+  try {
+    const res = await api.get('/admin/settings')
+    settings.value = res.data.data || {}
+  } catch (e) {
+    console.error('Failed loading settings', e)
+  }
+}
+
+function handleCvFileSelect(e) {
+  if (e.target.files && e.target.files[0]) {
+    cvFile.value = e.target.files[0]
+  }
+}
+
+async function uploadCv() {
+  if (!cvFile.value) return
+  cvUploading.value = true
+  try {
+    const fd = new FormData()
+    fd.append('cv', cvFile.value)
+    const res = await api.post('/admin/settings/cv', fd)
+    settings.value.cv_file_path = res.data.cv_file_path
+    settings.value.cv_file_url = res.data.cv_file_url
+    cvFile.value = null
+    feedback.value = 'CV document uploaded successfully.'
+  } catch (e) {
+    alert('Failed uploading CV document.')
+  } finally {
+    cvUploading.value = false
+  }
+}
+
+async function removeCv() {
+  if (confirm('Delete the current CV file?')) {
+    try {
+      await api.delete('/admin/settings/cv')
+      settings.value.cv_file_path = null
+      settings.value.cv_file_url = null
+      feedback.value = 'CV document removed.'
+    } catch (e) {
+      alert('Failed removing CV.')
+    }
+  }
+}
+
+async function saveSettings() {
+  saving.value = true
+  try {
+    const res = await api.post('/admin/settings', { settings: settings.value })
+    settings.value = res.data.data
+    feedback.value = 'Settings saved successfully.'
+  } catch (e) {
+    alert('Failed saving settings.')
+  } finally {
+    saving.value = false
+  }
+}
+
+onMounted(() => {
+  loadSettings()
+})
+</script>
