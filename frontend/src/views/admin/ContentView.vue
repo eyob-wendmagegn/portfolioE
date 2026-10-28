@@ -200,7 +200,7 @@
           <label class="block text-xs font-bold uppercase text-slate-400 mb-1">GitHub Profile URL</label>
           <input 
             v-model="settings.contact_github" 
-            type="url" 
+            type="text" 
             placeholder="https://github.com/eyobnigata18"
             class="w-full px-3.5 py-2.5 rounded-xl text-xs bg-slate-950 border border-slate-800 text-white focus:outline-none"
           />
@@ -210,8 +210,8 @@
           <label class="block text-xs font-bold uppercase text-slate-400 mb-1">LinkedIn Profile URL</label>
           <input 
             v-model="settings.contact_linkedin" 
-            type="url" 
-            placeholder="https://linkedin.com/in/..."
+            type="text" 
+            placeholder="https://linkedin.com/in/eyob-w"
             class="w-full px-3.5 py-2.5 rounded-xl text-xs bg-slate-950 border border-slate-800 text-white focus:outline-none"
           />
         </div>

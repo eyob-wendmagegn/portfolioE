@@ -91,11 +91,13 @@ Route::prefix('v1')->group(function () {
         Route::get('/messages', [AdminContactMessageController::class, 'index']);
         Route::get('/messages/{id}', [AdminContactMessageController::class, 'show']);
         Route::patch('/messages/{id}/toggle-read', [AdminContactMessageController::class, 'toggleRead']);
+        Route::post('/messages/{id}/reply', [AdminContactMessageController::class, 'reply']);
         Route::delete('/messages/{id}', [AdminContactMessageController::class, 'destroy']);
 
         // Site settings & content editor
         Route::get('/settings', [AdminSettingController::class, 'index']);
         Route::post('/settings', [AdminSettingController::class, 'update']);
+        Route::post('/settings/test-email', [AdminSettingController::class, 'sendTestEmail']);
         Route::post('/settings/avatar', [AdminSettingController::class, 'uploadAvatar']);
         Route::delete('/settings/avatar', [AdminSettingController::class, 'removeAvatar']);
         Route::post('/settings/cv', [AdminSettingController::class, 'uploadCv']);

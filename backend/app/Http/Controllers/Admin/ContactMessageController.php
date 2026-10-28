@@ -4,9 +4,12 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ContactMessageResource;
+use App\Mail\ContactMessageReplyMail;
 use App\Models\ContactMessage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class ContactMessageController extends Controller
 {
@@ -75,6 +78,40 @@ class ContactMessageController extends Controller
 
         return response()->json([
             'message' => $message->is_read ? 'Message marked as read.' : 'Message marked as unread.',
+            'data' => new ContactMessageResource($message),
+        ]);
+    }
+
+    /**
+     * Send direct reply to contact message.
+     */
+    public function reply(Request $request, $id): JsonResponse
+    {
+        $request->validate([
+            'reply' => ['required', 'string', 'min:3', 'max:5000'],
+        ]);
+
+        $message = ContactMessage::findOrFail($id);
+        $replyText = trim($request->input('reply'));
+
+        try {
+            Mail::to($message->email, $message->name)->send(
+                new ContactMessageReplyMail($message, $replyText)
+            );
+        } catch (\Throwable $e) {
+            Log::error('Direct email reply failed: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'Failed delivering email: ' . $e->getMessage() . '. Please verify your SMTP / Mail settings in .env.',
+            ], 500);
+        }
+
+        $message->replied_at = now();
+        $message->reply_message = $replyText;
+        $message->is_read = true;
+        $message->save();
+
+        return response()->json([
+            'message' => "Reply successfully delivered to {$message->email}!",
             'data' => new ContactMessageResource($message),
         ]);
     }

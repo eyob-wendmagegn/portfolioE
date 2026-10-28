@@ -8,6 +8,19 @@ use Tests\TestCase;
 
 class AdminAuthTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+        User::updateOrCreate(
+            ['email' => 'eyobnigata18@gmail.com'],
+            [
+                'name' => 'Eyob Wendmamagegn',
+                'password' => Hash::make('Password123!'),
+                'is_admin' => true,
+            ]
+        );
+    }
+
     public function test_admin_can_login_with_valid_credentials(): void
     {
         $response = $this->postJson('/api/v1/admin/login', [

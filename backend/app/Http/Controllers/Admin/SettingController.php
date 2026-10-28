@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\SiteSetting;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 
 class SettingController extends Controller
@@ -28,6 +29,16 @@ class SettingController extends Controller
         $settings = $request->input('settings', []);
 
         foreach ($settings as $key => $value) {
+            // Auto-normalize URLs if the user omitted http:// or https://
+            if (is_string($value) && trim($value) !== '') {
+                $trimmed = trim($value);
+                if (in_array($key, ['contact_linkedin', 'contact_github', 'social_twitter', 'cv_file_url']) || str_ends_with($key, '_url')) {
+                    if (!preg_match('~^https?://~i', $trimmed) && !str_starts_with($trimmed, '/')) {
+                        $value = 'https://' . $trimmed;
+                    }
+                }
+            }
+
             SiteSetting::setValue($key, $value);
         }
 
@@ -117,5 +128,32 @@ class SettingController extends Controller
         return response()->json([
             'message' => 'CV document removed.',
         ]);
+    }
+
+    /**
+     * Send a test notification email to phone.
+     */
+    public function sendTestEmail(Request $request): JsonResponse
+    {
+        $request->validate([
+            'email' => ['required', 'email'],
+        ]);
+
+        $targetEmail = $request->input('email');
+
+        try {
+            Mail::raw("Hi Eyob! This is a real-time test notification from your Eyob.dev portfolio system.\n\nTime sent: " . now()->toDayDateTimeString() . "\n\nIf you see this on your phone, real-time push notifications are working perfectly!", function ($message) use ($targetEmail) {
+                $message->to($targetEmail)
+                    ->subject("🔔 Real-Time Notification Test — Eyob.dev Portfolio");
+            });
+
+            return response()->json([
+                'message' => "Test notification successfully sent to {$targetEmail}! Check your phone's inbox and notifications.",
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'message' => 'Failed sending test email: ' . $e->getMessage() . '. Please verify your SMTP settings in .env.',
+            ], 500);
+        }
     }
 }

@@ -46,10 +46,12 @@
             </a>
 
             <a 
-              :href="'mailto:' + emailAddress"
+              :href="gmailUrl"
+              target="_blank"
+              rel="noopener noreferrer"
               class="p-2 rounded-lg bg-slate-900 light:bg-white text-slate-400 hover:text-blue-500 border border-slate-800 light:border-slate-200 transition-colors"
-              title="Email"
-              aria-label="Email Address"
+              title="Compose Email in Gmail"
+              aria-label="Email Eyob via Gmail"
             >
               <Mail class="w-4 h-4" />
             </a>
@@ -62,14 +64,14 @@
             Navigation
           </h4>
           <ul class="space-y-2 text-xs">
-            <li><a href="#home" class="hover:text-blue-400 transition-colors">Home</a></li>
-            <li><a href="#featured" class="hover:text-blue-400 transition-colors">Featured Projects</a></li>
-            <li><a href="#lms-showcase" class="hover:text-blue-400 transition-colors">LMS Showcase</a></li>
-            <li><a href="#work" class="hover:text-blue-400 transition-colors">All Work</a></li>
-            <li><a href="#skills" class="hover:text-blue-400 transition-colors">Skills & Stack</a></li>
-            <li><a href="#about" class="hover:text-blue-400 transition-colors">About Eyob</a></li>
-            <li><a href="#services" class="hover:text-blue-400 transition-colors">Services</a></li>
-            <li><a href="#contact" class="hover:text-blue-400 transition-colors">Contact</a></li>
+            <li><a href="#home" @click.prevent="scrollToSection('home')" class="hover:text-blue-400 transition-colors">Home</a></li>
+            <li><a href="#featured" @click.prevent="scrollToSection('featured')" class="hover:text-blue-400 transition-colors">Featured Projects</a></li>
+            <li><a href="#lms-showcase" @click.prevent="scrollToSection('lms-showcase')" class="hover:text-blue-400 transition-colors">LMS Showcase</a></li>
+            <li><a href="#work" @click.prevent="scrollToSection('work')" class="hover:text-blue-400 transition-colors">All Work</a></li>
+            <li><a href="#skills" @click.prevent="scrollToSection('skills')" class="hover:text-blue-400 transition-colors">Skills & Stack</a></li>
+            <li><a href="#about" @click.prevent="scrollToSection('about')" class="hover:text-blue-400 transition-colors">About Eyob</a></li>
+            <li><a href="#services" @click.prevent="scrollToSection('services')" class="hover:text-blue-400 transition-colors">Services</a></li>
+            <li><a href="#contact" @click.prevent="scrollToSection('contact')" class="hover:text-blue-400 transition-colors">Contact</a></li>
           </ul>
         </div>
 
@@ -79,12 +81,11 @@
             Core Technologies
           </h4>
           <ul class="space-y-2 text-xs">
-            <li class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>Laravel (PHP)</li>
+            <li class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>Laravel (PHP)</li>
             <li class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Vue.js 3 & Vite</li>
-            <li class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>PostgreSQL & MySQL</li>
+            <li class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>PostgreSQL & MongoDB</li>
             <li class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-cyan-500"></span>Tailwind CSS</li>
             <li class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-purple-500"></span>Laravel Sanctum</li>
-            <li class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>Pinia State Management</li>
           </ul>
         </div>
 
@@ -171,6 +172,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { usePortfolioStore } from '@/stores/portfolio'
+import { formatExternalUrl, getGmailComposeUrl } from '@/utils/url'
 import { Github, Linkedin, Mail, Lock, X } from 'lucide-vue-next'
 
 const portfolioStore = usePortfolioStore()
@@ -180,6 +182,15 @@ const showPrivacy = ref(false)
 const showTerms = ref(false)
 
 const emailAddress = computed(() => portfolioStore.settings.contact_email || 'eyobnigata18@gmail.com')
-const githubUrl = computed(() => portfolioStore.settings.contact_github || 'https://github.com')
-const linkedinUrl = computed(() => portfolioStore.settings.contact_linkedin || 'https://linkedin.com')
+const githubUrl = computed(() => formatExternalUrl(portfolioStore.settings.contact_github || 'https://github.com/eyobnigata18'))
+const linkedinUrl = computed(() => formatExternalUrl(portfolioStore.settings.contact_linkedin || 'https://linkedin.com/in/eyob-w'))
+const gmailUrl = computed(() => getGmailComposeUrl({ to: emailAddress.value, subject: 'Collaboration Inquiry — Eyob.dev' }))
+
+function scrollToSection(id) {
+  const el = document.getElementById(id)
+  if (!el) return
+  const yOffset = -70
+  const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset
+  window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' })
+}
 </script>

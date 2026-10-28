@@ -4,10 +4,7 @@
       
       <!-- Section Header -->
       <div class="text-center max-w-3xl mx-auto mb-16">
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 light:bg-blue-50 border border-blue-500/20 text-blue-400 light:text-blue-600 text-xs font-bold tracking-widest uppercase mb-3">
-          <User class="w-3.5 h-3.5" />
-          <span>Professional Background</span>
-        </div>
+        
         <h2 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white light:text-slate-900 mb-4">
           About Me
         </h2>

@@ -73,14 +73,39 @@
               <span v-if="msg.project_type" class="px-2 py-0.5 rounded text-[10px] font-semibold bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">
                 {{ msg.project_type }}
               </span>
+              <span v-if="msg.replied_at" class="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 flex items-center gap-1">
+                <Check class="w-3 h-3 text-emerald-400" />
+                <span>Replied</span>
+              </span>
             </div>
 
             <p class="text-xs font-semibold text-slate-200 light:text-slate-800">{{ msg.subject }}</p>
             <p class="text-xs text-slate-400 line-clamp-1">{{ msg.message }}</p>
           </div>
 
-          <div class="flex items-center gap-3 shrink-0 self-end sm:self-center" @click.stop>
+          <div class="flex items-center gap-2 shrink-0 self-end sm:self-center" @click.stop>
             <span class="text-[11px] text-slate-500 font-mono">{{ formatDate(msg.created_at) }}</span>
+
+            <!-- Quick Copy Email -->
+            <button 
+              @click="copyEmailAddress(msg.email)"
+              class="p-1.5 rounded-lg text-slate-400 hover:text-white transition-colors"
+              :title="copiedEmail === msg.email ? 'Email Copied!' : 'Copy ' + msg.email"
+            >
+              <Check v-if="copiedEmail === msg.email" class="w-4 h-4 text-emerald-400" />
+              <Copy v-else class="w-4 h-4" />
+            </button>
+
+            <!-- Quick Gmail Reply -->
+            <a 
+              :href="getGmailUrl(msg)"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="p-1.5 rounded-lg text-slate-400 hover:text-blue-400 transition-colors"
+              title="Reply in Gmail"
+            >
+              <ExternalLink class="w-4 h-4" />
+            </a>
 
             <button 
               @click="toggleRead(msg)"
@@ -122,12 +147,20 @@
         </div>
 
         <div class="space-y-3 text-xs">
-          <div class="flex items-center gap-2 text-slate-300">
+          <div class="flex flex-wrap items-center gap-2 text-slate-300">
             <span class="font-bold text-slate-500">From:</span>
             <span class="font-semibold text-white">{{ activeMessage.name }}</span>
-            <a :href="'mailto:' + activeMessage.email" class="text-blue-400 hover:underline">
-              &lt;{{ activeMessage.email }}&gt;
-            </a>
+            <span class="text-blue-400 font-mono">&lt;{{ activeMessage.email }}&gt;</span>
+            <button 
+              type="button"
+              @click="copyEmailAddress(activeMessage.email)"
+              class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 ml-1 transition-colors"
+              title="Copy email address"
+            >
+              <Check v-if="copiedEmail === activeMessage.email" class="w-3 h-3 text-emerald-400" />
+              <Copy v-else class="w-3 h-3 text-slate-400" />
+              <span>{{ copiedEmail === activeMessage.email ? 'Copied!' : 'Copy' }}</span>
+            </button>
           </div>
 
           <div v-if="activeMessage.project_type" class="flex items-center gap-2 text-slate-300">
@@ -143,20 +176,91 @@
               {{ activeMessage.message }}
             </div>
           </div>
+
+          <!-- Existing Reply History if present -->
+          <div v-if="activeMessage.replied_at" class="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs space-y-1">
+            <div class="flex items-center gap-1.5 text-emerald-400 font-bold">
+              <Check class="w-3.5 h-3.5" />
+              <span>You replied on {{ formatDate(activeMessage.replied_at) }}:</span>
+            </div>
+            <p class="text-slate-300 whitespace-pre-line pl-5">{{ activeMessage.reply_message }}</p>
+          </div>
+
+          <!-- Direct In-App Reply Form -->
+          <div class="pt-3 border-t border-slate-800 space-y-2">
+            <div class="flex items-center justify-between">
+              <label class="font-bold text-slate-300 text-xs flex items-center gap-1.5">
+                <Send class="w-3.5 h-3.5 text-blue-400" />
+                <span>Send Direct Email Reply:</span>
+              </label>
+              <span class="text-[10px] text-slate-500 font-mono">Delivered to {{ activeMessage.email }}</span>
+            </div>
+
+            <textarea 
+              v-model="replyText" 
+              rows="3" 
+              placeholder="Write your reply directly to this client..."
+              class="w-full px-3.5 py-2.5 rounded-xl text-xs bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-blue-500 transition-colors resize-none"
+            ></textarea>
+
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <button 
+                type="button" 
+                @click="sendDirectReply"
+                :disabled="sendingReply || !replyText.trim()"
+                class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white shadow-md shadow-blue-500/20 transition-all"
+              >
+                <Loader2 v-if="sendingReply" class="w-3.5 h-3.5 animate-spin" />
+                <Send v-else class="w-3.5 h-3.5" />
+                <span>{{ sendingReply ? 'Delivering Email...' : 'Send Direct Reply' }}</span>
+              </button>
+
+              <span v-if="replyStatus" :class="['text-xs font-semibold', replyError ? 'text-rose-400' : 'text-emerald-400']">
+                {{ replyStatus }}
+              </span>
+            </div>
+          </div>
         </div>
 
-        <div class="pt-3 border-t border-slate-800 flex items-center justify-between">
-          <a 
-            :href="`mailto:${activeMessage.email}?subject=Re: ${encodeURIComponent(activeMessage.subject)}`"
-            class="inline-flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-semibold bg-blue-600 hover:bg-blue-500 text-white"
-          >
-            <Send class="w-3.5 h-3.5" />
-            <span>Reply via Email</span>
-          </a>
+        <!-- Alternate Action Buttons: Gmail compose, Copy Email, Mail App -->
+        <div class="pt-4 border-t border-slate-800 flex flex-wrap items-center justify-between gap-3">
+          <div class="flex flex-wrap items-center gap-2">
+            <!-- Direct Gmail Web Compose -->
+            <a 
+              :href="getGmailUrl(activeMessage)"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition-colors"
+              title="Open web Gmail compose"
+            >
+              <ExternalLink class="w-3.5 h-3.5 text-blue-400" />
+              <span>Open in Gmail</span>
+            </a>
+
+            <!-- Copy Email Button -->
+            <button 
+              type="button"
+              @click="copyEmailAddress(activeMessage.email)"
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 transition-colors"
+            >
+              <Check v-if="copiedEmail === activeMessage.email" class="w-3.5 h-3.5 text-emerald-400" />
+              <Copy v-else class="w-3.5 h-3.5 text-slate-400" />
+              <span>{{ copiedEmail === activeMessage.email ? 'Copied!' : 'Copy Email' }}</span>
+            </button>
+
+            <!-- Desktop Mail App Fallback -->
+            <a 
+              :href="`mailto:${activeMessage.email}?subject=Re: ${encodeURIComponent(activeMessage.subject)}`"
+              class="px-2.5 py-1.5 rounded-lg text-xs text-slate-400 hover:text-slate-200 transition-colors"
+              title="Open default desktop mail client"
+            >
+              Mail App
+            </a>
+          </div>
 
           <button 
             @click="deleteMsg(activeMessage)"
-            class="p-2 rounded-xl text-rose-400 hover:bg-rose-500/10"
+            class="p-2 rounded-xl text-rose-400 hover:bg-rose-500/10 transition-colors"
             title="Delete this message"
           >
             <Trash2 class="w-4 h-4" />
@@ -171,7 +275,8 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import api from '@/services/api'
-import { Search, Mail, MailCheck, Trash2, X, Send } from 'lucide-vue-next'
+import { getGmailComposeUrl } from '@/utils/url'
+import { Search, Mail, MailCheck, Trash2, X, Send, Copy, Check, ExternalLink, Loader2 } from 'lucide-vue-next'
 
 const messages = ref([])
 const unreadCount = ref(0)
@@ -179,7 +284,62 @@ const feedback = ref('')
 const filterUnread = ref(false)
 const searchQuery = ref('')
 const activeMessage = ref(null)
+const copiedEmail = ref('')
+const replyText = ref('')
+const sendingReply = ref(false)
+const replyStatus = ref('')
+const replyError = ref(false)
 let searchTimeout = null
+
+async function sendDirectReply() {
+  if (!activeMessage.value || !replyText.value.trim()) return
+
+  sendingReply.value = true
+  replyStatus.value = ''
+  replyError.value = false
+
+  try {
+    const res = await api.post(`/admin/messages/${activeMessage.value.id}/reply`, {
+      reply: replyText.value.trim()
+    })
+
+    replyStatus.value = 'Reply sent successfully!'
+    activeMessage.value.replied_at = res.data.data.replied_at || new Date().toISOString()
+    activeMessage.value.reply_message = replyText.value.trim()
+    replyText.value = ''
+
+    // Refresh list
+    await loadMessages()
+  } catch (err) {
+    replyError.value = true
+    replyStatus.value = err.response?.data?.message || 'Failed delivering email. Check SMTP settings.'
+  } finally {
+    sendingReply.value = false
+  }
+}
+
+function getGmailUrl(msg) {
+  if (!msg) return ''
+  const quote = `\n\n--- Original Message from ${msg.name} (${msg.email}) ---\nSubject: ${msg.subject}\n\n${msg.message}`
+  return getGmailComposeUrl({
+    to: msg.email,
+    subject: `Re: ${msg.subject}`,
+    body: quote
+  })
+}
+
+async function copyEmailAddress(email) {
+  if (!email) return
+  try {
+    await navigator.clipboard.writeText(email)
+    copiedEmail.value = email
+    setTimeout(() => {
+      if (copiedEmail.value === email) copiedEmail.value = ''
+    }, 2500)
+  } catch (err) {
+    // fallback
+  }
+}
 
 async function loadMessages() {
   try {
@@ -213,6 +373,9 @@ function formatDate(iso) {
 
 async function openMessageDetail(msg) {
   activeMessage.value = msg
+  replyText.value = ''
+  replyStatus.value = ''
+  replyError.value = false
   if (!msg.is_read) {
     try {
       await api.get(`/admin/messages/${msg.id}`)

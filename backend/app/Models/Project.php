@@ -42,6 +42,31 @@ class Project extends Model
 
     protected $appends = ['cover_image_url'];
 
+    protected function liveUrl(): Attribute
+    {
+        return Attribute::make(
+            set: fn ($value) => self::normalizeUrl($value)
+        );
+    }
+
+    protected function githubUrl(): Attribute
+    {
+        return Attribute::make(
+            set: fn ($value) => self::normalizeUrl($value)
+        );
+    }
+
+    private static function normalizeUrl(?string $value): ?string
+    {
+        if (empty($value)) return null;
+        $trimmed = trim($value);
+        if ($trimmed === '') return null;
+        if (!preg_match('~^https?://~i', $trimmed) && !str_starts_with($trimmed, '/')) {
+            return 'https://' . $trimmed;
+        }
+        return $trimmed;
+    }
+
     protected function coverImageUrl(): Attribute
     {
         return Attribute::make(

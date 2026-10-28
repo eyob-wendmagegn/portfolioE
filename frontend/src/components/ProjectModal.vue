@@ -96,7 +96,7 @@
         <div class="pt-4 border-t border-slate-800 light:border-slate-200 flex flex-wrap gap-3">
           <a 
             v-if="project.live_url" 
-            :href="project.live_url" 
+            :href="formatExternalUrl(project.live_url)" 
             target="_blank" 
             rel="noopener noreferrer"
             class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-semibold bg-blue-600 hover:bg-blue-500 text-white shadow-md transition-all"
@@ -107,7 +107,7 @@
 
           <a 
             v-if="project.github_url" 
-            :href="project.github_url" 
+            :href="formatExternalUrl(project.github_url)" 
             target="_blank" 
             rel="noopener noreferrer"
             class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-semibold bg-slate-800 light:bg-slate-100 hover:bg-slate-700 text-slate-200 light:text-slate-800 border border-slate-700 light:border-slate-300 transition-all"
@@ -122,6 +122,7 @@
 </template>
 
 <script setup>
+import { formatExternalUrl } from '@/utils/url'
 import { X, ExternalLink, Github } from 'lucide-vue-next'
 
 defineProps({

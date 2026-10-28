@@ -20,8 +20,11 @@ use App\Models\Skill;
 use App\Models\Technology;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Storage;
+use App\Mail\NewContactNotificationMail;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class PublicPortfolioController extends Controller
@@ -192,6 +195,18 @@ class PublicPortfolioController extends Controller
         $validated['ip_address'] = $ip;
 
         $message = ContactMessage::create($validated);
+
+        // Send real-time email notification to Eyob's phone
+        try {
+            $adminEmail = config('mail.from.address') 
+                ?: env('ADMIN_EMAIL') 
+                ?: SiteSetting::getValue('contact_email') 
+                ?: 'eyobnigata18@gmail.com';
+
+            Mail::to($adminEmail)->send(new NewContactNotificationMail($message));
+        } catch (\Throwable $e) {
+            Log::warning('Failed sending contact notification email: ' . $e->getMessage());
+        }
 
         return response()->json([
             'message' => 'Thank you for reaching out! Your message has been received successfully. I will get back to you shortly.',

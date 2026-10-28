@@ -22,6 +22,8 @@ class ContactMessageResource extends JsonResource
             'project_type' => $this->project_type,
             'message' => $this->message,
             'is_read' => (bool) $this->is_read,
+            'replied_at' => $this->replied_at?->toISOString(),
+            'reply_message' => $this->reply_message,
             'ip_address' => $this->ip_address,
             'archived_at' => $this->archived_at?->toISOString(),
             'created_at' => $this->created_at?->toISOString(),

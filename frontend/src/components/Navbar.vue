@@ -12,7 +12,8 @@
         <!-- Logo -->
         <a 
           href="#home" 
-          class="flex items-center gap-2 group text-xl font-bold tracking-tight text-white light:text-slate-900"
+          @click.prevent="scrollToSection('home')"
+          class="flex items-center gap-2 group text-xl font-bold tracking-tight text-white cursor-pointer"
         >
           <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform">
             <span class="font-black text-sm">EW</span>
@@ -28,11 +29,12 @@
             v-for="item in navItems" 
             :key="item.name" 
             :href="item.href"
+            @click.prevent="scrollToSection(item.id)"
             :class="[
-              'px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all duration-200',
+              'px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer',
               activeSection === item.id 
-                ? 'text-blue-400 light:text-blue-600 bg-blue-500/10 light:bg-blue-50' 
-                : 'text-slate-300 light:text-slate-600 hover:text-white light:hover:text-slate-900 hover:bg-slate-800/50 light:hover:bg-slate-100'
+                ? 'text-blue-400 bg-blue-500/10' 
+                : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
             ]"
           >
             {{ item.name }}
@@ -41,22 +43,11 @@
 
         <!-- Right Action Controls -->
         <div class="hidden md:flex items-center gap-3">
-          <!-- Theme Toggle -->
-          <button 
-            @click="themeStore.toggleTheme" 
-            class="p-2 rounded-xl text-slate-400 hover:text-white light:hover:text-slate-900 hover:bg-slate-800/60 light:hover:bg-slate-100 transition-colors"
-            :title="themeStore.isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
-            aria-label="Toggle theme"
-          >
-            <Sun v-if="themeStore.isDark" class="w-5 h-5 text-amber-400 transition-transform duration-300 hover:rotate-45" />
-            <Moon v-else class="w-5 h-5 text-indigo-600 transition-transform duration-300 hover:-rotate-12" />
-          </button>
-
           <!-- Download CV Button -->
           <a 
             :href="cvUrl"
             download="Eyob_Wendmamagegn_CV.pdf"
-            class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 light:bg-slate-100 text-slate-200 light:text-slate-800 hover:bg-slate-700 light:hover:bg-slate-200 border border-slate-700 light:border-slate-300 transition-all shadow-sm"
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 text-slate-200 hover:bg-slate-700 border border-slate-700 transition-all shadow-sm"
           >
             <Download class="w-3.5 h-3.5 text-blue-400" />
             <span>CV</span>
@@ -65,7 +56,8 @@
           <!-- Contact / Hire Me CTA -->
           <a 
             href="#contact" 
-            class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 shadow-md shadow-blue-500/20 hover:shadow-blue-500/30 hover:scale-[1.02] active:scale-[0.98] transition-all"
+            @click.prevent="scrollToSection('contact')"
+            class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 shadow-md shadow-blue-500/20 hover:shadow-blue-500/30 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
           >
             <span>Let's Talk</span>
           </a>
@@ -73,7 +65,7 @@
           <!-- Admin Portal Link -->
           <router-link 
             to="/admin/login" 
-            class="p-2 rounded-xl text-slate-500 hover:text-slate-300 light:hover:text-slate-700 hover:bg-slate-800/40 light:hover:bg-slate-100 transition-colors"
+            class="p-2 rounded-xl text-slate-500 hover:text-slate-300 hover:bg-slate-800/40 transition-colors"
             title="Admin Login"
             aria-label="Admin Portal"
           >
@@ -84,17 +76,8 @@
         <!-- Mobile Menu Button -->
         <div class="flex items-center gap-2 md:hidden">
           <button 
-            @click="themeStore.toggleTheme" 
-            class="p-2 rounded-xl text-slate-400 hover:text-white light:hover:text-slate-900"
-            aria-label="Toggle theme"
-          >
-            <Sun v-if="themeStore.isDark" class="w-5 h-5 text-amber-400" />
-            <Moon v-else class="w-5 h-5 text-indigo-600" />
-          </button>
-
-          <button 
             @click="mobileMenuOpen = !mobileMenuOpen" 
-            class="p-2 rounded-xl text-slate-300 light:text-slate-700 hover:bg-slate-800 light:hover:bg-slate-100 focus:outline-none"
+            class="p-2 rounded-xl text-slate-300 hover:bg-slate-800 focus:outline-none"
             aria-label="Open menu"
           >
             <Menu v-if="!mobileMenuOpen" class="w-6 h-6" />
@@ -114,24 +97,24 @@
       >
         <div 
           v-if="mobileMenuOpen" 
-          class="md:hidden mt-3 p-4 rounded-2xl glass-panel border border-slate-800 light:border-slate-200 shadow-2xl space-y-3"
+          class="md:hidden mt-3 p-4 rounded-2xl glass-panel border border-slate-800 shadow-2xl space-y-3"
         >
           <a 
             v-for="item in navItems" 
             :key="item.name" 
             :href="item.href"
-            @click="mobileMenuOpen = false"
-            class="block px-3 py-2 rounded-xl text-base font-medium text-slate-200 light:text-slate-800 hover:bg-blue-600/10 hover:text-blue-400 transition-colors"
+            @click.prevent="scrollToSection(item.id)"
+            class="block px-3 py-2 rounded-xl text-base font-medium text-slate-200 hover:bg-blue-600/10 hover:text-blue-400 transition-colors cursor-pointer"
           >
             {{ item.name }}
           </a>
 
-          <div class="pt-3 border-t border-slate-800 light:border-slate-200 flex flex-col gap-2">
+          <div class="pt-3 border-t border-slate-800 flex flex-col gap-2">
             <a 
               :href="cvUrl"
               download="Eyob_Wendmamagegn_CV.pdf"
               @click="mobileMenuOpen = false"
-              class="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold bg-slate-800 light:bg-slate-100 text-slate-200 light:text-slate-800 border border-slate-700 light:border-slate-300"
+              class="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold bg-slate-800 text-slate-200 border border-slate-700"
             >
               <Download class="w-4 h-4 text-blue-400" />
               Download CV
@@ -154,11 +137,12 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, computed } from 'vue'
-import { useThemeStore } from '@/stores/theme'
+import { useRoute, useRouter } from 'vue-router'
 import { usePortfolioStore } from '@/stores/portfolio'
-import { Sun, Moon, Download, Lock, Menu, X } from 'lucide-vue-next'
+import { Download, Lock, Menu, X } from 'lucide-vue-next'
 
-const themeStore = useThemeStore()
+const route = useRoute()
+const router = useRouter()
 const portfolioStore = usePortfolioStore()
 
 const isScrolled = ref(false)
@@ -180,11 +164,41 @@ const cvUrl = computed(() => {
   return portfolioStore.settings.cv_file_url || 'http://localhost:8000/api/v1/cv/download'
 })
 
+function scrollToSection(id) {
+  mobileMenuOpen.value = false
+  
+  if (route.path !== '/') {
+    router.push({ path: '/', hash: `#${id}` }).then(() => {
+      setTimeout(() => performScroll(id), 150)
+    })
+    return
+  }
+  
+  performScroll(id)
+}
+
+function performScroll(id) {
+  const el = document.getElementById(id)
+  if (!el) return
+  
+  const yOffset = -72 // fixed navbar height compensation
+  const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset
+  window.scrollTo({
+    top: Math.max(0, y),
+    behavior: 'smooth'
+  })
+  
+  activeSection.value = id
+  if (window.history && window.history.pushState) {
+    window.history.pushState(null, '', `#${id}`)
+  }
+}
+
 function handleScroll() {
   isScrolled.value = window.scrollY > 30
 
   // Determine active section
-  const scrollPos = window.scrollY + 100
+  const scrollPos = window.scrollY + 120
   for (const item of navItems) {
     const el = document.getElementById(item.id)
     if (el) {
@@ -199,6 +213,12 @@ function handleScroll() {
 
 onMounted(() => {
   window.addEventListener('scroll', handleScroll, { passive: true })
+  
+  // If loaded with a hash in URL (e.g. #skills), smooth scroll to it
+  if (window.location.hash) {
+    const targetId = window.location.hash.replace('#', '')
+    setTimeout(() => performScroll(targetId), 250)
+  }
 })
 
 onUnmounted(() => {

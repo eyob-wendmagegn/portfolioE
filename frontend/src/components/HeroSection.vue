@@ -45,7 +45,8 @@
           <div class="pt-4 flex flex-wrap items-center gap-4">
             <a 
               href="#work" 
-              class="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 hover:-translate-y-0.5 transition-all text-sm"
+              @click.prevent="scrollToSection('work')"
+              class="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 hover:-translate-y-0.5 transition-all text-sm cursor-pointer"
             >
               <span>Explore My Work</span>
               <ArrowDownRight class="w-4 h-4" />
@@ -88,7 +89,8 @@
 
               <a 
                 href="#contact" 
-                class="p-3 rounded-xl glass-panel text-slate-300 light:text-slate-700 hover:text-white light:hover:text-blue-600 hover:border-blue-500/50 hover:bg-blue-600/10 transition-all hover:scale-105"
+                @click.prevent="scrollToSection('contact')"
+                class="p-3 rounded-xl glass-panel text-slate-300 light:text-slate-700 hover:text-white light:hover:text-blue-600 hover:border-blue-500/50 hover:bg-blue-600/10 transition-all hover:scale-105 cursor-pointer"
                 title="Send an Email"
                 aria-label="Email Eyob"
               >
@@ -101,59 +103,34 @@
         <!-- Right Column: Profile Frame & Tech Badges -->
         <div class="lg:col-span-5 flex justify-center relative">
           <!-- Backing ambient glow halo -->
-          <div class="absolute inset-0 bg-gradient-to-tr from-blue-600/30 to-purple-600/30 rounded-full blur-3xl scale-90 -z-10 animate-pulse"></div>
+          <div class="absolute inset-0 bg-gradient-to-tr from-blue-600/25 to-purple-600/25 rounded-full blur-2xl scale-75 -z-10 animate-pulse"></div>
 
-          <!-- Main Profile Container with Irregular Rounded Gradient Border -->
-          <div class="relative w-72 h-80 sm:w-88 sm:h-96 md:w-96 md:h-104 p-1.5 rounded-[2.5rem] bg-gradient-to-tr from-blue-500 via-indigo-500 to-fuchsia-500 shadow-2xl shadow-blue-500/20 group">
-            <div class="w-full h-full rounded-[2.35rem] bg-slate-950 light:bg-slate-900 overflow-hidden relative flex items-center justify-center">
+          <!-- Main Profile Container with Irregular Rounded Gradient Border (Compact & Minimized) -->
+          <div class="relative w-64 h-72 sm:w-72 sm:h-80 lg:w-80 lg:h-90 p-1 rounded-[2rem] bg-gradient-to-tr from-blue-500 via-indigo-500 to-fuchsia-500 shadow-xl shadow-blue-500/15 group">
+            <div class="w-full h-full rounded-[1.85rem] bg-slate-950 overflow-hidden relative flex items-center justify-center">
               
               <!-- Real Profile Image if available -->
               <img 
                 v-if="profileAvatarUrl" 
                 :src="profileAvatarUrl" 
                 alt="Eyob Wendmamagegn — Full-Stack Developer" 
-                class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
+                class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700"
               />
 
               <!-- Elegant Developer Avatar Silhouette Placeholder -->
               <div v-else class="w-full h-full flex flex-col items-center justify-center p-6 text-center bg-gradient-to-b from-slate-900 to-slate-950">
-                <div class="w-28 h-28 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-700 flex items-center justify-center text-white mb-4 shadow-xl border-2 border-white/20">
-                  <Terminal class="w-14 h-14 text-blue-200" />
+                <div class="w-24 h-24 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-700 flex items-center justify-center text-white mb-3 shadow-xl border-2 border-white/20">
+                  <Terminal class="w-12 h-12 text-blue-200" />
                 </div>
-                <h3 class="text-xl font-bold text-white mb-1">Eyob Wendmamagegn</h3>
+                <h3 class="text-lg font-bold text-white mb-1">Eyob Wendmamagegn</h3>
                 <p class="text-xs text-blue-400 font-mono tracking-wider uppercase">Full-Stack Engineer</p>
-                <span class="mt-4 px-3 py-1 rounded-full text-[10px] font-medium bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                <span class="mt-3 px-3 py-1 rounded-full text-[10px] font-medium bg-blue-500/20 text-blue-300 border border-blue-500/30">
                   Laravel & Vue.js Specialist
                 </span>
               </div>
 
               <!-- Subtle Overlay vignette -->
-              <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none"></div>
-            </div>
-
-            <!-- Floating Tech Badges (Laravel, Vue.js, PHP, JavaScript) -->
-            <!-- Badge 1: Laravel (Top-Right) -->
-            <div class="absolute -top-4 -right-4 px-3.5 py-2 rounded-2xl glass-panel shadow-xl flex items-center gap-2 border border-rose-500/30 animate-float-slow bg-slate-900/90 light:bg-white">
-              <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
-              <span class="text-xs font-bold text-white light:text-slate-900">Laravel</span>
-            </div>
-
-            <!-- Badge 2: Vue.js (Bottom-Left) -->
-            <div class="absolute -bottom-4 -left-4 px-3.5 py-2 rounded-2xl glass-panel shadow-xl flex items-center gap-2 border border-emerald-500/30 animate-float-delayed bg-slate-900/90 light:bg-white">
-              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-              <span class="text-xs font-bold text-white light:text-slate-900">Vue.js 3</span>
-            </div>
-
-            <!-- Badge 3: PostgreSQL / DB (Top-Left) -->
-            <div class="absolute top-1/4 -left-6 hidden sm:flex px-3 py-1.5 rounded-xl glass-panel shadow-lg items-center gap-2 border border-blue-500/30 animate-float-slow bg-slate-900/90 light:bg-white">
-              <Database class="w-3.5 h-3.5 text-blue-400" />
-              <span class="text-[11px] font-semibold text-white light:text-slate-900">PostgreSQL</span>
-            </div>
-
-            <!-- Badge 4: REST API (Bottom-Right) -->
-            <div class="absolute bottom-1/4 -right-6 hidden sm:flex px-3 py-1.5 rounded-xl glass-panel shadow-lg items-center gap-2 border border-purple-500/30 animate-float-delayed bg-slate-900/90 light:bg-white">
-              <Code2 class="w-3.5 h-3.5 text-purple-400" />
-              <span class="text-[11px] font-semibold text-white light:text-slate-900">REST API</span>
+              <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none"></div>
             </div>
           </div>
         </div>
@@ -166,6 +143,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { usePortfolioStore } from '@/stores/portfolio'
+import { formatExternalUrl } from '@/utils/url'
 import { 
   ArrowDownRight, Download, Github, Linkedin, Mail, 
   Terminal, Database, Code2 
@@ -174,9 +152,17 @@ import {
 const portfolioStore = usePortfolioStore()
 
 const profileAvatarUrl = computed(() => portfolioStore.settings.hero_avatar_url)
-const githubUrl = computed(() => portfolioStore.settings.contact_github || 'https://github.com')
-const linkedinUrl = computed(() => portfolioStore.settings.contact_linkedin || 'https://linkedin.com')
+const githubUrl = computed(() => formatExternalUrl(portfolioStore.settings.contact_github || 'https://github.com/eyobnigata18'))
+const linkedinUrl = computed(() => formatExternalUrl(portfolioStore.settings.contact_linkedin || 'https://linkedin.com/in/eyob-w'))
 const cvUrl = computed(() => portfolioStore.settings.cv_file_url || 'http://localhost:8000/api/v1/cv/download')
+
+function scrollToSection(id) {
+  const el = document.getElementById(id)
+  if (!el) return
+  const yOffset = -70
+  const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset
+  window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' })
+}
 
 // Typewriter role rotation
 const currentRoleText = ref('')

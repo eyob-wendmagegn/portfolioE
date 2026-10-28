@@ -48,7 +48,7 @@
 
         <div class="text-center">
           <p class="text-3xl sm:text-4xl font-extrabold text-emerald-400 light:text-emerald-600 tracking-tight">
-            100%
+            99%
           </p>
           <p class="text-xs sm:text-sm font-medium text-slate-400 light:text-slate-600 mt-1 uppercase tracking-wider">
             Clean Architecture

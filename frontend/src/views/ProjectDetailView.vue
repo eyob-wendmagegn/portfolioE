@@ -70,7 +70,7 @@
         <div class="flex flex-wrap gap-4 pt-4">
           <a 
             v-if="project.live_url" 
-            :href="project.live_url" 
+            :href="formatExternalUrl(project.live_url)" 
             target="_blank" 
             rel="noopener noreferrer"
             class="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-500/20 transition-all"
@@ -81,7 +81,7 @@
 
           <a 
             v-if="project.github_url" 
-            :href="project.github_url" 
+            :href="formatExternalUrl(project.github_url)" 
             target="_blank" 
             rel="noopener noreferrer"
             class="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold glass-panel text-slate-200 light:text-slate-800 border border-slate-800 light:border-slate-300 hover:border-blue-500/50 transition-all"
@@ -109,6 +109,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import api from '@/services/api'
+import { formatExternalUrl } from '@/utils/url'
 import Navbar from '@/components/Navbar.vue'
 import Footer from '@/components/Footer.vue'
 import { ArrowLeft, ExternalLink, Github } from 'lucide-vue-next'

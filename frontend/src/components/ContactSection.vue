@@ -32,21 +32,54 @@
             </p>
 
             <div class="space-y-4">
-              <!-- Email Card -->
-              <a 
-                :href="'mailto:' + emailAddress" 
-                class="flex items-center gap-4 p-4 rounded-2xl bg-slate-900/60 light:bg-slate-50 border border-slate-800/60 light:border-slate-200/60 hover:border-blue-500/40 transition-colors group"
-              >
-                <div class="w-11 h-11 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all">
-                  <Mail class="w-5 h-5" />
+              <!-- Email Card with Direct Web Actions -->
+              <div class="p-4 rounded-2xl bg-slate-900/60 light:bg-slate-50 border border-slate-800/60 light:border-slate-200/60 hover:border-blue-500/40 transition-colors">
+                <div class="flex items-center justify-between gap-3">
+                  <div class="flex items-center gap-3 min-w-0">
+                    <div class="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center shrink-0">
+                      <Mail class="w-5 h-5" />
+                    </div>
+                    <div class="min-w-0">
+                      <p class="text-[11px] text-slate-400 font-medium">Email Address</p>
+                      <p class="text-xs sm:text-sm font-semibold text-white light:text-slate-900 truncate">
+                        {{ emailAddress }}
+                      </p>
+                    </div>
+                  </div>
+
+                  <!-- Quick Action: Copy -->
+                  <button 
+                    type="button"
+                    @click="copyEmail" 
+                    class="shrink-0 px-2.5 py-1.5 rounded-lg text-[11px] font-semibold bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition-colors border border-slate-700/80 flex items-center gap-1.5"
+                    title="Copy email to clipboard"
+                  >
+                    <Check v-if="copied" class="w-3.5 h-3.5 text-emerald-400" />
+                    <Copy v-else class="w-3.5 h-3.5 text-slate-400" />
+                    <span>{{ copied ? 'Copied!' : 'Copy' }}</span>
+                  </button>
                 </div>
-                <div>
-                  <p class="text-[11px] text-slate-400 font-medium">Email Address</p>
-                  <p class="text-xs sm:text-sm font-semibold text-white light:text-slate-900 group-hover:text-blue-400 transition-colors">
-                    {{ emailAddress }}
-                  </p>
+
+                <div class="mt-3 pt-3 border-t border-slate-800/60 flex items-center gap-2">
+                  <a 
+                    :href="gmailComposeUrl" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    class="flex-1 inline-flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-lg text-[11px] font-semibold bg-blue-600/20 text-blue-300 hover:bg-blue-600 hover:text-white border border-blue-500/30 transition-all"
+                  >
+                    <ExternalLink class="w-3 h-3" />
+                    <span>Open in Gmail</span>
+                  </a>
+
+                  <a 
+                    :href="'mailto:' + emailAddress" 
+                    class="py-1.5 px-3 rounded-lg text-[11px] font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/40 transition-colors"
+                    title="Open in system mail client"
+                  >
+                    Mail App
+                  </a>
                 </div>
-              </a>
+              </div>
 
               <!-- Phone Card -->
               <div 
@@ -57,7 +90,7 @@
                   <Phone class="w-5 h-5" />
                 </div>
                 <div>
-                  <p class="text-[11px] text-slate-400 font-medium">Phone / WhatsApp</p>
+                  <p class="text-[11px] text-slate-400 font-medium">Phone / Telegram</p>
                   <p class="text-xs sm:text-sm font-semibold text-white light:text-slate-900">
                     {{ phoneNumber }}
                   </p>
@@ -265,9 +298,10 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { usePortfolioStore } from '@/stores/portfolio'
+import { formatExternalUrl, getGmailComposeUrl } from '@/utils/url'
 import { 
   Send, Mail, Phone, MapPin, Github, Linkedin, 
-  CheckCircle, AlertCircle, Loader2 
+  CheckCircle, AlertCircle, Loader2, Copy, Check, ExternalLink 
 } from 'lucide-vue-next'
 
 const portfolioStore = usePortfolioStore()
@@ -275,8 +309,20 @@ const portfolioStore = usePortfolioStore()
 const emailAddress = computed(() => portfolioStore.settings.contact_email || 'eyobnigata18@gmail.com')
 const phoneNumber = computed(() => portfolioStore.settings.contact_phone || '')
 const location = computed(() => portfolioStore.settings.contact_location || 'Ethiopia')
-const githubUrl = computed(() => portfolioStore.settings.contact_github || 'https://github.com')
-const linkedinUrl = computed(() => portfolioStore.settings.contact_linkedin || 'https://linkedin.com')
+const githubUrl = computed(() => formatExternalUrl(portfolioStore.settings.contact_github || 'https://github.com/eyobnigata18'))
+const linkedinUrl = computed(() => formatExternalUrl(portfolioStore.settings.contact_linkedin || 'https://linkedin.com/in/eyob-w'))
+const gmailComposeUrl = computed(() => getGmailComposeUrl({ to: emailAddress.value, subject: 'Collaboration Inquiry — Eyob.dev' }))
+
+const copied = ref(false)
+async function copyEmail() {
+  try {
+    await navigator.clipboard.writeText(emailAddress.value)
+    copied.value = true
+    setTimeout(() => { copied.value = false }, 2500)
+  } catch (err) {
+    // fallback
+  }
+}
 
 const form = ref({
   name: '',

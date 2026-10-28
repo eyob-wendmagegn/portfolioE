@@ -5,10 +5,7 @@
       <!-- Section Title Header -->
       <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
         <div>
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 light:bg-blue-50 border border-blue-500/20 text-blue-400 light:text-blue-600 text-xs font-bold tracking-widest uppercase mb-3">
-            <Star class="w-3.5 h-3.5" />
-            <span>Curated Work</span>
-          </div>
+         
           <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white light:text-slate-900">
             Featured Projects
           </h2>
@@ -57,7 +54,7 @@
               <div class="absolute top-4 right-4 flex items-center gap-2">
                 <a 
                   v-if="project.github_url" 
-                  :href="project.github_url" 
+                  :href="formatExternalUrl(project.github_url)" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   class="p-2 rounded-full bg-slate-950/80 light:bg-white/90 text-slate-300 light:text-slate-700 hover:text-white light:hover:text-black border border-white/10 hover:border-blue-500 transition-colors"
@@ -68,7 +65,7 @@
                 </a>
                 <a 
                   v-if="project.live_url" 
-                  :href="project.live_url" 
+                  :href="formatExternalUrl(project.live_url)" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   class="p-2 rounded-full bg-slate-950/80 light:bg-white/90 text-slate-300 light:text-slate-700 hover:text-white light:hover:text-black border border-white/10 hover:border-blue-500 transition-colors"
@@ -127,6 +124,7 @@
 <script setup>
 import { computed } from 'vue'
 import { usePortfolioStore } from '@/stores/portfolio'
+import { formatExternalUrl } from '@/utils/url'
 import { 
   Star, ChevronRight, Terminal, Github, ExternalLink, ArrowRight 
 } from 'lucide-vue-next'

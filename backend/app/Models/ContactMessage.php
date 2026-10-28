@@ -17,6 +17,8 @@ class ContactMessage extends Model
         'project_type',
         'message',
         'is_read',
+        'replied_at',
+        'reply_message',
         'ip_address',
         'archived_at',
     ];
@@ -25,6 +27,7 @@ class ContactMessage extends Model
     {
         return [
             'is_read' => 'boolean',
+            'replied_at' => 'datetime',
             'archived_at' => 'datetime',
         ];
     }
